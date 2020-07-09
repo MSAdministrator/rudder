@@ -17,7 +17,7 @@ setup(
     description='A Python package to execute code remotely to multiple operating system platforms',
     long_description=open('README.md').read(),
     long_description_content_type="text/markdown",
-    install_requires=parse_requirements('./requirements.txt'),
+    install_requires=parse_requirements('requirements.txt'),
     keywords=['rudder', 'winrm', 'ssh', 'cmd', 'powershell'],
     url='https://github.com/MSAdministrator/rudder',
     author='MSAdministrator',
