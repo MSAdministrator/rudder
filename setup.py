@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 def parse_requirements(requirement_file):
     with open(requirement_file) as f:
-        return f.readlines()
+        return f.read().splitlines()
 
 version = dict()
 with open("./rudder/utils/version.py") as fp:
