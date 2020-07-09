@@ -5,7 +5,7 @@ def parse_requirements(requirement_file):
         return f.readlines()
 
 version = dict()
-with open("./conductor/utils/version.py") as fp:
+with open("./courier/utils/version.py") as fp:
     exec(fp.read(), version)
 
 
