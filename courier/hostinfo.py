@@ -3,7 +3,7 @@ import sys
 
 class HostInfo(object):
 
-    """A HostInfo object is used when conducting remote commands on hosts
+    """A HostInfo object is used when executing remote commands on hosts
     """
 
     def windows(self, hostname, username, password, verify_ssl=False):
@@ -25,7 +25,7 @@ class HostInfo(object):
         return self
 
     def linux(self, hostname, username, ssh_key_path=None, password=None, port=22):
-        """The linux method provides information to connect to a remote host using SSH.  This can be Linux or macOS.
+        """The linux method provides information to execute code on a remote host using SSH.  This can be Linux or macOS.
 
         Args:
             hostname (str): A single hostname to connect to.  Either DNS or IP address.

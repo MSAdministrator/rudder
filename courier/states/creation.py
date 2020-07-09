@@ -4,7 +4,7 @@ from .innvocation import InnvocationState
 
 class CreationState(State):
     """
-    The state which is used to modify commands provided to conductor
+    The state which is used to modify commands provided to courier
     """
 
     def powershell(self, event):

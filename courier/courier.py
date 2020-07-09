@@ -1,7 +1,7 @@
 from .states.creation import CreationState
 
 
-class Conductor(object):
+class Courier(object):
     """ 
     A simple state machine that mimics the functionality of a device from a 
     high level.
