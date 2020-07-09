@@ -1,7 +1,7 @@
 from .states.creation import CreationState
 
 
-class Courier(object):
+class Rudder(object):
     """ 
     A simple state machine that mimics the functionality of a device from a 
     high level.

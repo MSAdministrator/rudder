@@ -1,3 +1,3 @@
 from .utils.version import __version__
-from .courier import Courier
+from .rudder import Rudder
 from .hostinfo import HostInfo

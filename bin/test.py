@@ -1,4 +1,4 @@
-from courier import Courier, HostInfo
+from rudder import Rudder, HostInfo
 
 windows_host = '10.0.0.0'
 windows_username = 'Administrator'
@@ -15,9 +15,9 @@ hostinfo = HostInfo().windows(
     windows_pass
 )
 
-conductor = Courier().execute(hostinfo, 'powershell', 'Get-ChildItem -Path "C:\" -Recurse')
+conductor = Rudder().execute(hostinfo, 'powershell', 'Get-ChildItem -Path "C:\" -Recurse')
 print(conductor)
-conductor = Courier().execute(hostinfo, 'cmd', 'asdf')
+conductor = Rudder().execute(hostinfo, 'cmd', 'asdf')
 print(conductor)
 
 
@@ -26,5 +26,5 @@ hostinfo = HostInfo().linux(
     nix_username,
     password=nix_pass
 )
-conductor = Courier().execute(hostinfo, 'ssh', 'ls -al')
+conductor = Rudder().execute(hostinfo, 'ssh', 'ls -al')
 print(conductor)
