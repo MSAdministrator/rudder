@@ -16,23 +16,34 @@ class InnvocationState(State):
     __win_error_list = []
 
     def __handle_windows_errors(self, stream):
-        if stream.error:
-            for item in stream.error:
-                return str(item)
-                
-        if stream.debug:
-            for item in stream.debug:
-                self.__win_error_list.append(item)
-        if stream.information:
-            for item in stream.information:
-                self.__win_error_list.append(item)
-        if stream.verbose:
-            for item in stream.verbose:
-                self.__win_error_list.append(item)
-        if stream.warning:
-            for item in stream.warning:
-                self.__win_error_list.append(item)
-        
+        return_list = []
+        for item in stream.error:
+            return_list.append({
+                'type': 'error',
+                'value': str(item)
+            })
+        for item in stream.debug:
+            return_list.append({
+                'type': 'debug',
+                'value': str(item)
+            })
+        for item in stream.information:
+            return_list.append({
+                'type': 'information',
+                'value': str(item)
+            })
+        for item in stream.verbose:
+            return_list.append({
+                'type': 'verbose',
+                'value': str(item)
+            })
+        for item in stream.warning:
+            return_list.append({
+                'type': 'warning',
+                'value': str(item)
+            })
+        return return_list
+
     def __create_win_client(self, hostinfo):
         self.__win_client = Client(
             hostinfo.hostname,
@@ -57,6 +68,8 @@ class InnvocationState(State):
         if not self.__win_client:
             self.__create_win_client(self.hostinfo)
         output, streams, had_errors = self.__win_client.execute_ps(command)
+        if not output:
+            output = self.__handle_windows_errors(streams)
         if had_errors:
             print('{host} responded with the following message(s): {message}'.format(
                 host=self.hostinfo.hostname,
