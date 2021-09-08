@@ -73,94 +73,129 @@ python3 setup.py install
 
 Below contains two prime examples of using rudder on both Windows and a *nix system.
 
-Whether you are wanting to run a command remotely on Windows or a *nix based system (e.g. CentOS, macOS, etc.) you first need to create a `HostInfo` object.  You do this by importing the `HostInfo` class in your script like so:
+Whether you are wanting to run a command remotely on Windows or a *nix based system (e.g. CentOS, macOS, etc.) you first need to create a `Host` object.  You do this by importing the `Host` class in your script like so. Once imported you can provide a list of one or more `Host` objects to rudder (more info below):
 
 ```python
-from rudder import HostInfo
-```
+from rudder import Host
 
-### Windows HostInfo Object
-
-You first need to provide the following information when instantiating a `HostInfo` object for Windows systems:
-
-```python
-from rudder import HostInfo
-
-windows_host = '10.0.0.0'
-windows_username = 'Administrator'
-windows_pass = 'somepassword'
- 
-hostinfo = HostInfo().windows(
-    windows_host,
-    windows_username,
-    windows_pass
+my_host_list = []
+my_host_list.append(
+    Host(
+        hostname=None, # nix & windows
+        username=None, # nix & windows
+        password=None, # nix & windows
+        verify_ssl=False, # windows
+        ssh_key_path=None, # nix
+        port=22, # nix
+        timeout=5, # nix
+    )
 )
 ```
 
-### *Nix HostInfo Object
+### Running Command Remotely Using Username & Password
 
-You first need to provide the following information when instantiating a `HostInfo` object for *nix systems:
-
-```python
-from rudder import HostInfo
-
-nix_host = '10.0.0.0'
-nix_username = 'root'
-nix_pass = 'somepassword'
-# Optionally you can provide the following parameters:
-# ssh_key_path = '/Users/username/.ssh/id_rsa'
-# port = '2222'
- 
-hostinfo = HostInfo().linux(
-    nix_host,
-    nix_username,
-    password=nix_pass
-    ssh_key_path=None,
-    port=22
-)
-```
-
-### Running Command Remotely on Windows
-
-With rudder you can run either `cmd` or `powershell` commands remotely.  Below are two examples of these methods:
+With rudder you can run either `ssh`, `cmd` or `powershell` commands remotely.  Below are examples of these methods:
 
 ```python
-from rudder import Rudder, HostInfo
+from rudder import Rudder, Host
 
-windows_host = '10.0.0.0'
-windows_username = 'Administrator'
-windows_pass = 'somepassword'
- 
-hostinfo = HostInfo().windows(
-    windows_host,
-    windows_username,
-    windows_pass
+my_host_list = []
+my_host_list.append(
+    Host(
+        hostname='10.10.32.100',
+        username='admin',
+        password='secret_password1'
+    )
 )
 
-conductor = Rudder().execute(hostinfo, 'powershell', 'Get-ChildItem -Path "C:\" -Recurse')
-print(conductor)
-conductor = Rudder().execute(hostinfo, 'cmd', 'dir')
-print(conductor)
+rudder = Rudder(hosts=my_host_list)
+for result in rudder.execute(executor='powershell', command='Get-ChildItem -Path "C:\" -Recurse'):
+    print(result)
+
 ```
 
-### Running Command Remotely on *Nix
+### Running Command Remotely using SSH key
 
 With rudder you can run commands remotely using SSH and whichever shell is avaialble on the remote system:
 
 ```python
-from rudder import Rudder, HostInfo
+from rudder import Rudder, Host
 
-nix_host = '10.0.0.0'
-nix_username = 'root'
-nix_pass = 'somepassword'
- 
-hostinfo = HostInfo().linux(
-    nix_host,
-    nix_username,
-    password=nix_pass
+my_host_list = []
+# If no ssh_key_path or no username and password, Rudder
+# will attempt to use the default path for these keys
+my_host_list.append(
+    Host(
+        hostname='10.10.32.100'
+    )
 )
-conductor = Rudder().execute(hostinfo, 'ssh', 'ls -al')
-print(conductor)
+
+my_host_list.append(
+    Host(
+        hostname='10.32.1.1',
+        ssh_key_path='~/some_path
+    )
+)
+
+rudder = Rudder(hosts=my_host_list)
+for result in rudder.execute(executor='ssh', command='ls -al'):
+    print(result)
+
+```
+
+
+### Running Command Remotely using Config File
+
+With rudder you can provide a formatted config file to automate rudder even further. Below is an example of the format of this configuration file:
+
+```yaml
+inventory: # Inventory contains one or more groups of hosts and how you can authenticate to them
+  windows1: # <- This can be any name but make it clear to you
+    inputs: # <- How I am going to authenticate to these hosts
+      username: some_username
+      password: secret_password
+      verify_ssl: false
+    hosts: # <- A list of one or more hosts that work with the provided inputs above
+      - 192.168.1.1
+      - 10.32.1.1
+      # Add as many as needed
+  linux1:
+    inputs: # <- How I am going to authenticate to these hosts
+      username: some_username
+      password: secret_password
+      ssk_key_path: path_to_a_ssh_private_key
+      port: 22
+      timeout: 5
+    hosts: # <- A list of one or more hosts that work with the provided inputs above
+      - 10.32.100.201
+      - 10.32.0.1
+      # Add as many as needed
+
+run_conditions:
+  some_group_name: # <- A grouping of one or more inventories (hosts)
+    executor: ssh # <- The executor to use. Options are ssh, cmd, powershell.
+    inventories: # <- One or more inventory defintions from above
+      - linux1
+    command: | # <- The command to run on all the inventory defintions above
+      ls -al
+  my_windows_group_name:
+    executor: powershell # or cmd
+    inventories:
+      - windows1
+    command: |
+      Get-ChildItem
+```
+
+By providing a path to this configuration file to rudder will parse the config file and ensure it's in it's expected format.
+
+After you have instantiated a `Rudder` object then all you need to do is call the `execute` method with no additional paramter values.
+
+```python
+from rudder import Rudder
+
+rudder = Rudder(config_file_path='~/path_to_config_file.yml')
+for result in rudder.execute():
+    print(result)
 ```
 
 ## Built With
