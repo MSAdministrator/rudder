@@ -1,0 +1,35 @@
+inventory: # Inventory contains one or more groups of hosts and how you can authenticate to them
+  windows1: # <- This can be any name but make it clear to you
+    inputs: # <- How I am going to authenticate to these hosts
+      username: some_username
+      password: secret_password
+      verify_ssl: false
+    hosts: # <- A list of one or more hosts that work with the provided inputs above
+      - 192.168.1.1
+      - 10.32.1.1
+      # Add as many as needed
+  linux1:
+    inputs: # <- How I am going to authenticate to these hosts
+      username: some_username
+      password: secret_password
+      ssk_key_path: path_to_a_ssh_private_key
+      port: 22
+      timeout: 5
+    hosts: # <- A list of one or more hosts that work with the provided inputs above
+      - 10.32.100.201
+      - 10.32.0.1
+      # Add as many as needed
+
+run_conditions:
+  some_group_name: # <- A grouping of one or more inventories (hosts)
+    executor: ssh # <- The executor to use. Options are ssh, cmd, powershell.
+    inventories: # <- One or more inventory defintions from above
+      - linux1
+    command: | # <- The command to run on all the inventory defintions above
+      ls -al
+  my_windows_group_name:
+    executor: powershell # or cmd
+    inventories:
+      - windows1
+    command: |
+      Get-ChildItem
