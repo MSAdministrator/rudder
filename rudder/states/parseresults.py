@@ -1,5 +1,4 @@
 from .state import State
-from ..utils.exceptions import ParseResultsError
 
 
 class ParseResultsState(State):

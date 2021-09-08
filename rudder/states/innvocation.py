@@ -3,17 +3,17 @@ from pypsrp.powershell import PowerShell, RunspacePool
 from pypsrp.wsman import WSMan
 from pypsrp.shell import WinRS 
 
+from ..core import Core
 from .state import State
 from .parseresults import ParseResultsState
 
 
-class InnvocationState(State):
+class InnvocationState(State, Core):
     """
     The state which indicates the invocation of a command
     """
 
     __win_client = None
-    __win_error_list = []
 
     def __handle_windows_errors(self, stream):
         return_list = []
@@ -58,7 +58,7 @@ class InnvocationState(State):
         stdout, stderr, rc = self.__win_client.execute_cmd(command)
         # NOTE: rc (return code of process) should equal 0 but we are not adding logic here this is handled int he ParseResultsState class
         if stderr:
-            print('{host} responded with the following message(s): {message}'.format(
+            self.__logger.error('{host} responded with the following message(s): {message}'.format(
                 host=self.hostinfo.hostname,
                 message=stderr
             ))
@@ -71,7 +71,7 @@ class InnvocationState(State):
         if not output:
             output = self.__handle_windows_errors(streams)
         if had_errors:
-            print('{host} responded with the following message(s): {message}'.format(
+            self.__logger.error('{host} responded with the following message(s): {message}'.format(
                 host=self.hostinfo.hostname,
                 message=self.__handle_windows_errors(streams)
             ))
@@ -81,19 +81,20 @@ class InnvocationState(State):
         import paramiko
         ssh = paramiko.SSHClient()
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        if hasattr(self.hostinfo, 'ssh_key_path'):
+        if self.hostinfo.ssh_key_path:
             ssh.connect(
                 self.hostinfo.hostname,
                 port=self.hostinfo.port,
                 username=self.hostinfo.username,
-                pkey=self.hostinfo.ssh_key_path
+                key_filename=self.hostinfo.ssh_key_path
             )
-        elif hasattr(self.hostinfo, 'password'):
+        elif self.hostinfo.password:
             ssh.connect(
                 self.hostinfo.hostname,
                 port=self.hostinfo.port,
                 username=self.hostinfo.username,
-                password=self.hostinfo.password
+                password=self.hostinfo.password,
+                timeout=self.hostinfo.timeout
             )
         else:
             raise AttributeError('Please provide either a ssh_key_path or a password')

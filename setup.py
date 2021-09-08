@@ -21,5 +21,13 @@ setup(
     url='https://github.com/MSAdministrator/rudder',
     author='MSAdministrator',
     author_email='rickardja@live.com',
-    python_requires='>3.6'
+    python_requires='>3.6',
+    package_data={
+        'rudder':  ['data/logging.yml']
+    },
+    entry_points={
+          'console_scripts': [
+              'rudder = rudder.__main__:main'
+          ]
+    }
 )
