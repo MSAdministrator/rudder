@@ -1,6 +1,7 @@
 from .core import Core
 from .runner import Runner, Host
 from .states.creation import CreationState
+from paramiko.ssh_exception import NoValidConnectionsError
 
 
 class Rudder(Core):
@@ -71,18 +72,28 @@ class Rudder(Core):
             pass
         else:
             raise ValueError('You must provide a valid executor and command or a properly formatted config file')
+        return_dict = {}
+        final_state = None
         if self.__configs:
             for config in self.__configs:
                 for host in config.hosts:
-                    finished = False
-                    while not finished:
-                        if str(self.state) == 'CreationState':
-                            self.__logger.debug('Running CreationState on_event')
-                            self.state = self.state.on_event(config.executor, config.command)
-                        if str(self.state) == 'InnvocationState':
-                            self.__logger.debug('Running InnvocationState on_event')
-                            self.state = self.state.invoke(host, config.executor, config.command)
-                        if str(self.state) == 'ParseResultsState':
-                            self.__logger.debug('Running ParseResultsState on_event')
-                            yield self.state.on_event()
-                            finished = True
+                    if host.hostname not in return_dict:
+                        return_dict[host.hostname] = ''
+                    try:
+                        finished = False
+                        while not finished:
+                            if str(self.state) == 'CreationState':
+                                self.__logger.debug('Running CreationState on_event')
+                                self.state = self.state.on_event(config.executor, config.command)
+                            if str(self.state) == 'InnvocationState':
+                                self.__logger.debug('Running InnvocationState on_event')
+                                self.state = self.state.invoke(host, config.executor, config.command)
+                            if str(self.state) == 'ParseResultsState':
+                                self.__logger.debug('Running ParseResultsState on_event')
+                                final_state = self.state.on_event()
+                                finished = True
+                    except NoValidConnectionsError as e:
+                        self.__logger.warning(f'Unable to connect to {host}: {e}')
+                        final_state = e
+                    return_dict[host.hostname] = final_state
+        return return_dict
