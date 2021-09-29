@@ -42,6 +42,7 @@ class Core(metaclass=LoggingBase):
                                     password=inputs.get('password'),
                                     verify_ssl=inputs['verify_ssl'] if inputs.get('verify_ssl') else False,
                                     ssh_key_path=inputs.get('ssh_key_path'),
+                                    private_key_string=inputs.get('private_key_string'),
                                     port=inputs['port'] if inputs.get('port') else 22,
                                     timeout=inputs['timeout'] if inputs.get('timeout') else 5
                                 )

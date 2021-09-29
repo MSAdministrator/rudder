@@ -11,9 +11,10 @@ In order to use rudder you must make sure you have access and credentials to aut
 The following packages will be installed and are prerequisities for rudder:
 
 ```
-paramiko
-fire
-pypsrp
+paramiko==2.7.2
+fire==0.4.0
+pypsrp==0.5.0
+pyyaml==5.4.1
 ```
 
 > NOTE: To use this on your remote Windows machines, you need to do the following:
@@ -86,6 +87,7 @@ my_host_list.append(
         password=None, # nix & windows
         verify_ssl=False, # windows
         ssh_key_path=None, # nix
+        private_key_string=None, # nix
         port=22, # nix
         timeout=5, # nix
     )
@@ -134,6 +136,7 @@ my_host_list.append(
     Host(
         hostname='10.32.1.1',
         ssh_key_path='~/some_path
+        #private_key_string='some_private_key_as_string'
     )
 )
 
@@ -164,6 +167,7 @@ inventory: # Inventory contains one or more groups of hosts and how you can auth
       username: some_username
       password: secret_password
       ssk_key_path: path_to_a_ssh_private_key
+      #private_key_string: some_private_key_as_string_value
       port: 22
       timeout: 5
     hosts: # <- A list of one or more hosts that work with the provided inputs above

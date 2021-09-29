@@ -88,6 +88,13 @@ class InnvocationState(State, Core):
                 username=self.hostinfo.username,
                 key_filename=self.hostinfo.ssh_key_path
             )
+        elif self.hostinfo.private_key_string:
+            ssh.connect(
+                self.hostinfo.hostname,
+                port=self.hostinfo.port,
+                username=self.hostinfo.username,
+                pkey=self.hostinfo.private_key_string
+            )
         elif self.hostinfo.password:
             ssh.connect(
                 self.hostinfo.hostname,

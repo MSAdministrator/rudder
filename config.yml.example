@@ -10,9 +10,10 @@ inventory: # Inventory contains one or more groups of hosts and how you can auth
       # Add as many as needed
   linux1:
     inputs: # <- How I am going to authenticate to these hosts
-      username: some_username
-      password: secret_password
-      ssk_key_path: path_to_a_ssh_private_key
+      username: root
+      password: UR4Swimlane!
+     # ssk_key_path: path_to_a_ssh_private_key
+     # private_key_string: some_private_key_as_string_value
       port: 22
       timeout: 5
     hosts: # <- A list of one or more hosts that work with the provided inputs above

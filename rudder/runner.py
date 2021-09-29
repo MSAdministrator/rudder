@@ -12,6 +12,7 @@ class Host:
     password = attr.ib(default=None, type=str)
     verify_ssl = attr.ib(default=False, type=bool)
     ssh_key_path = attr.ib(default=None, type=str)
+    private_key_string = attr.ib(default=None, type=str)
     port = attr.ib(default=22, type=int)
     timeout = attr.ib(default=5, type=int)
 
