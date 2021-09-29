@@ -1,7 +1,17 @@
 from .core import Core
 from .runner import Runner, Host
 from .states.creation import CreationState
-from paramiko.ssh_exception import NoValidConnectionsError
+from paramiko.ssh_exception import (
+    BadAuthenticationType,
+    NoValidConnectionsError, 
+    AuthenticationException, 
+    PasswordRequiredException
+)
+from pypsrp.exceptions import (
+    AuthenticationError,
+    WinRMTransportError,
+    WSManFaultError
+)
 
 
 class Rudder(Core):
@@ -92,8 +102,26 @@ class Rudder(Core):
                                 self.__logger.debug('Running ParseResultsState on_event')
                                 final_state = self.state.on_event()
                                 finished = True
-                    except NoValidConnectionsError as e:
-                        self.__logger.warning(f'Unable to connect to {host}: {e}')
-                        final_state = e
+                    except NoValidConnectionsError as ec:
+                        self.__logger.warning(f'SSH Error: Unable to connect to {host.hostname}: {ec}')
+                        final_state = ec
+                    except AuthenticationException as ea:
+                        self.__logger.warning(f'SSH Error: Unable to authenticate to host {host.hostname}: {ea}')
+                        final_state = ea
+                    except BadAuthenticationType as eb:
+                        self.__logger.warning(f'SSH Error: Unable to use provided authentication type to {host.hostname}: {eb}')
+                        final_state = eb
+                    except PasswordRequiredException as ep:
+                        self.__logger.warning(f'SSH Error: Must provide a password to authenticate to {host.hostname}: {ep}')
+                        final_state = ep
+                    except AuthenticationError as ewa:
+                        self.__logger.warning(f'Windows Error: Unable to authenticate to host {host.hostname}: {ewa}')
+                        final_state = ewa
+                    except WinRMTransportError as ewt:
+                        self.__logger.warning(f'Windows Error: Error occurred during transport on host {host.hostname}: {ewt}')
+                        final_state = ewt
+                    except WSManFaultError as ewf:
+                        self.__logger.warning(f'Windows Error: Received WSManFault information from host {host.hostname}: {ewf}')
+                        final_state = ewf
                     return_dict[host.hostname] = final_state
         return return_dict
